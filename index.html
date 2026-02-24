@@ -565,25 +565,7 @@
   .fade-up-5 { animation-delay: 0.45s; opacity: 0; }
   .fade-up-6 { animation-delay: 0.55s; opacity: 0; }
 
-  /* ── SAVE AS PDF BUTTON ── */
-  .btn-pdf {
-    width: 100%;
-    padding: 16px;
-    background: var(--amber);
-    color: var(--white);
-    border: none;
-    border-radius: var(--radius);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    cursor: pointer;
-    box-shadow: 0 6px 20px rgba(231,155,60,0.4);
-    transition: all 0.2s;
-    margin-bottom: 12px;
-  }
-  .btn-pdf:active { transform: scale(0.98); }
+
 
   /* ── PRINT / PDF STYLES ── */
   @media print {
@@ -591,7 +573,7 @@
     body { background: #fff !important; padding: 0 !important; }
 
     /* Hide form page and buttons when printing */
-    #form-page, .new-assessment-wrap, .btn-pdf, .btn-new, .progress-wrap { display: none !important; }
+    #form-page, .new-assessment-wrap, .btn-new, .progress-wrap, .thank-you-banner { display: none !important; }
     #results-page { display: block !important; }
 
     /* Page setup */
@@ -1060,16 +1042,22 @@
     </div>
   </div>
 
+  <!-- Thank You Banner -->
+  <div class="thank-you-banner" id="thankYouBanner">
+    <div class="ty-icon">✅</div>
+    <div class="ty-title">You're All Set!</div>
+    <div class="ty-sub">Thanks for completing the Fleet Fitness Assessment.<br>Your personalized scorecard will be emailed to you within <strong>3–5 business days</strong>.</div>
+  </div>
+
   <!-- New Assessment Button -->
   <div class="new-assessment-wrap fade-up fade-up-6">
-    <button class="btn-pdf" onclick="savePDF()">📄 Save as PDF</button>
     <button class="btn-new" onclick="startNewAssessment()">← Start New Assessment</button>
   </div>
 
 </div><!-- end results-page -->
 
 <!-- Toast -->
-<div class="toast" id="toast">📧 Results sent to Magnus team!</div>
+
 
 
 <script>
@@ -1278,11 +1266,6 @@
     el('pi-pains').textContent = pains;
   }
 
-  // ── SAVE AS PDF
-  function savePDF() {
-    window.print();
-  }
-
   // ── SUBMIT
   function submitAssessment() {
     if (!validate()) {
@@ -1319,70 +1302,68 @@
     window.scrollTo(0, 0);
 
     // Send email
-    sendEmail(c);
+    saveToSheet(c);
   }
 
-  // ── EMAIL
-  function sendEmail(c) {
+  // ── SAVE TO GOOGLE SHEET
+  async function saveToSheet(c) {
+    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzAdZ2pOJ75zgvsBbyAKHQVj6bzs0RfRDNXTw2aCBBva5fRnm9nBrTRBfnUvCmzODlxVA/exec';
+
     const trailers = getCheckboxValues('trailerTypes').join(', ');
     const pains = getCheckboxValues('painPoints').join(', ');
-    const oorDisplay = v('oorKnown') === 'yes' ? `${v('oorEntry')}% (entered)` : `${(c.oorRate*100).toFixed(0)}% (industry assumption)`;
-
     const turnoverLabel = el('turnover').options[el('turnover').selectedIndex].text;
     const emptyLabel = el('emptyMiles').options[el('emptyMiles').selectedIndex].text;
+    const oorDisplay = v('oorKnown') === 'yes'
+      ? v('oorEntry') + '% (entered)'
+      : (c.oorRate * 100).toFixed(0) + '% (industry assumption)';
 
-    const body = `MAGNUS TECHNOLOGIES FLEET FITNESS ASSESSMENT
-Submitted: ${new Date().toLocaleString()}
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-US');
+    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-─── CONTACT INFORMATION ───
-Name: ${v('firstName')} ${v('lastName')}
-Email: ${v('email')}
-Company: ${v('company')}
-Role: ${v('role')}
+    const payload = {
+      date: dateStr,
+      time: timeStr,
+      firstName: v('firstName'),
+      lastName: v('lastName'),
+      email: v('email'),
+      company: v('company'),
+      role: v('role'),
+      trailerTypes: trailers,
+      numDrivers: v('numDrivers'),
+      numTrucks: v('numTrucks'),
+      tms: v('tms'),
+      driverTurnover: turnoverLabel,
+      emptyMilesRate: emptyLabel,
+      oorVisibility: v('oorKnown'),
+      oorRateUsed: oorDisplay,
+      painPoints: pains,
+      emptyMileCurrent: fmt(c.emptyCurrentState),
+      emptyMileSavings: fmt(c.emptySavings),
+      turnoverCurrent: fmt(c.turnoverCurrentState),
+      turnoverSavings: fmt(c.turnoverSavings),
+      backOfficeCurrent: fmt(c.backofficeCurrentState),
+      backOfficeSavings: fmt(c.backofficeSavings),
+      oorCurrent: fmt(c.oorCurrentState),
+      oorSavings: fmt(c.oorSavings),
+      year1Savings: fmt(c.year1),
+      year3Savings: fmt(c.year3)
+    };
 
-─── FLEET PROFILE ───
-Trailer Types: ${trailers}
-Number of Drivers: ${v('numDrivers')}
-Number of Trucks: ${v('numTrucks')}
+    try {
+      await fetch(SHEET_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch (err) {
+      // Silent fail — data collection best effort, don't interrupt user experience
+      console.log('Sheet save failed:', err);
+    }
 
-─── OPERATIONS & TECHNOLOGY ───
-Current TMS / System: ${v('tms')}
-Driver Turnover Rate: ${turnoverLabel}
-Empty Miles Rate: ${emptyLabel}
-OOR Miles Known: ${v('oorKnown')}
-OOR Rate Used: ${oorDisplay}
-
-─── CURRENT CHALLENGES ───
-${pains}
-
-─── ASSESSMENT RESULTS ───
-Empty Mile Cost (Current):       ${fmt(c.emptyCurrentState)}
-Empty Mile Savings with Magnus:  ${fmt(c.emptySavings)}
-
-Driver Turnover Cost (Current):      ${fmt(c.turnoverCurrentState)}
-Driver Turnover Savings with Magnus: ${fmt(c.turnoverSavings)}
-
-Back Office Cost (Current):      ${fmt(c.backofficeCurrentState)}
-Back Office Savings with Magnus: ${fmt(c.backofficeSavings)}
-
-OOR Mileage Cost (Current):      ${fmt(c.oorCurrentState)}
-OOR Mileage Savings with Magnus: ${fmt(c.oorSavings)}
-
-─── TOTALS ───
-Potential Year 1 Savings (25%):           ${fmt(c.year1)}
-Potential Annual Savings by Year 3 (100%): ${fmt(c.year3)}
-`;
-
-    const subject = `Fleet Fitness Assessment — ${v('firstName')} ${v('lastName')}, ${v('company')}`;
-    const mailtoLink = `mailto:sara.tsoodle@magnustech.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailtoLink;
-
-    // Show toast
-    setTimeout(() => {
-      const toast = el('toast');
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 3500);
-    }, 800);
+    // Show thank you banner
+    el('thankYouBanner').classList.add('visible');
   }
 
   // ── NEW ASSESSMENT
@@ -1398,6 +1379,7 @@ Potential Annual Savings by Year 3 (100%): ${fmt(c.year3)}
     document.querySelectorAll('.err-msg').forEach(e => e.classList.remove('visible'));
     document.querySelectorAll('.error').forEach(e => e.classList.remove('error'));
     el('oorEntryWrap').classList.remove('visible');
+    el('thankYouBanner').classList.remove('visible');
 
     el('results-page').style.display = 'none';
     el('form-page').style.display = 'block';
