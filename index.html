@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Magnus Fleet Fitness Assessment</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fleet Assessment">
+<meta name="theme-color" content="#2d4d3f">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<!-- Fonts - with offline fallback stack -->
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #407c65;
+    --dark-green: #2d4d3f;
+    --amber: #E79B3C;
+    --bg: #f4f6f4;
+    --white: #ffffff;
+    --light-gray: #e8ece9;
+    --mid-gray: #c5cec9;
+    --text: #1a2b24;
+    --text-light: #4a6358;
+    --error: #c0392b;
+    --shadow: 0 4px 24px rgba(45,77,63,0.13);
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--dark-green);
+    padding: 28px 24px 22px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    background: rgba(64,124,101,0.25);
+    border-radius: 50%;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -30px; left: -30px;
+    width: 140px; height: 140px;
+    background: rgba(231,155,60,0.12);
+    border-radius: 50%;
+  }
+
+  .logo-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+    position: relative; z-index: 1;
+  }
+
+  .logo-img { height: 64px; width: auto; filter: brightness(0) invert(1); }
+
+  .header-title {
+    position: relative; z-index: 1;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--amber);
+    border-top: 1px solid rgba(255,255,255,0.15);
+    padding-top: 14px;
+    margin-top: 4px;
+  }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap {
+    background: var(--dark-green);
+    padding: 0 24px 20px;
+  }
+  .progress-track {
+    background: rgba(255,255,255,0.15);
+    border-radius: 4px;
+    height: 5px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--amber);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+  .progress-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    text-align: right;
+    margin-top: 6px;
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 1px;
+  }
+
+  /* ── SECTIONS ── */
+  .section {
+    margin: 20px 16px 0;
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .section-header {
+    background: var(--green);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-header .icon {
+    width: 28px; height: 28px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .section-header h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--white);
+  }
+
+  .section-body { padding: 20px; }
+
+  /* ── FIELDS ── */
+  .field { margin-bottom: 20px; }
+  .field:last-child { margin-bottom: 0; }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--dark-green);
+    margin-bottom: 7px;
+    letter-spacing: 0.3px;
+  }
+  label .req { color: var(--amber); margin-left: 3px; }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="number"],
+  select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--light-gray);
+    border-radius: 10px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 16px;
+    color: var(--text);
+    background: var(--white);
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+  input:focus, select:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(64,124,101,0.15);
+  }
+  input.error, select.error {
+    border-color: var(--error);
+  }
+
+  .select-wrap { position: relative; }
+  .select-wrap::after {
+    content: '▾';
+    position: absolute;
+    right: 16px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--green);
+    font-size: 18px;
+    pointer-events: none;
+  }
+
+  /* Two column layout for name fields */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  /* ── CHECKBOXES (multi-select) ── */
+  .checkbox-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .checkbox-grid.single-col { grid-template-columns: 1fr; }
+
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    border: 2px solid var(--light-gray);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--white);
+  }
+  .check-item:active { background: var(--light-gray); }
+  .check-item input[type="checkbox"] { display: none; }
+  .check-box {
+    width: 20px; height: 20px;
+    border: 2px solid var(--mid-gray);
+    border-radius: 5px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    background: var(--white);
+  }
+  .check-item input:checked ~ .check-box {
+    background: var(--green);
+    border-color: var(--green);
+  }
+  .check-item input:checked ~ .check-box::after {
+    content: '✓';
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .check-item.checked {
+    border-color: var(--green);
+    background: rgba(64,124,101,0.05);
+  }
+  .check-label { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.3; }
+
+  /* ── CONDITIONAL FIELD ── */
+  .conditional-field {
+    display: none;
+    margin-top: 14px;
+    padding: 16px;
+    background: rgba(231,155,60,0.08);
+    border: 2px solid rgba(231,155,60,0.3);
+    border-radius: 10px;
+  }
+  .conditional-field.visible { display: block; }
+  .conditional-field label { color: var(--amber); }
+
+  /* ── RANGE HINT ── */
+  .range-hint {
+    font-size: 11px;
+    color: var(--text-light);
+    margin-top: 5px;
+  }
+
+  /* ── ERROR MESSAGES ── */
+  .err-msg {
+    font-size: 12px;
+    color: var(--error);
+    margin-top: 5px;
+    display: none;
+  }
+  .err-msg.visible { display: block; }
+
+  /* ── SUBMIT BUTTON ── */
+  .submit-wrap {
+    margin: 24px 16px 0;
+    padding-bottom: 10px;
+  }
+  .btn-submit {
+    width: 100%;
+    padding: 18px;
+    background: var(--amber);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(231,155,60,0.4);
+    transition: all 0.2s;
+  }
+  .btn-submit:active { transform: scale(0.98); box-shadow: 0 3px 10px rgba(231,155,60,0.3); }
+
+  /* ── RESULTS PAGE ── */
+  #results-page { display: none; }
+
+  .results-header {
+    background: var(--dark-green);
+    padding: 30px 24px 24px;
+    text-align: center;
+  }
+  .results-header .name-line {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--amber);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .results-header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 4px;
+    color: var(--white);
+    line-height: 1.1;
+  }
+
+  /* ── SCORE CARDS ── */
+  .score-grid {
+    margin: 20px 16px 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .score-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .score-card-header {
+    background: var(--dark-green);
+    padding: 11px 18px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.8);
+  }
+
+  .score-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid var(--light-gray);
+  }
+  .score-row:last-child { border-bottom: none; }
+
+  .score-cell {
+    padding: 16px 18px;
+    border-right: 1px solid var(--light-gray);
+  }
+  .score-cell:last-child { border-right: none; }
+  .score-cell .cell-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 5px;
+  }
+  .score-cell .cell-value {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--dark-green);
+  }
+  .score-cell.savings .cell-value { color: var(--green); }
+
+  /* ── TOTALS ── */
+  .totals-wrap {
+    margin: 14px 16px 0;
+  }
+
+  .total-card {
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+  }
+
+  .total-card.year1 { background: var(--green); }
+  .total-card.year3 { background: var(--dark-green); }
+
+  .total-inner {
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  .total-label-wrap {}
+  .total-tag {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 3px;
+  }
+  .total-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.2;
+  }
+  .total-subtitle {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 4px;
+    font-style: italic;
+  }
+  .total-amount {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 38px;
+    letter-spacing: 2px;
+    color: var(--amber);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* ── RESULT CONTENT BLOCKS ── */
+  .result-block {
+    margin: 14px 16px 0;
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  /* Block 1 - two info boxes */
+  .info-boxes {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .info-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+    border: 2px solid var(--amber);
+    border-radius: 12px;
+  }
+  .info-box-icon {
+    font-size: 26px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .info-box-text {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.55;
+  }
+  .info-box-text strong { font-weight: 600; }
+
+  /* Block 2 - Conservative snapshot */
+  .snapshot-header {
+    background: #3d3d3d;
+    padding: 14px 20px;
+    text-align: center;
+  }
+  .snapshot-header h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--white);
+    text-transform: uppercase;
+  }
+  .snapshot-body { padding: 16px 20px; }
+  .snapshot-intro {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.55;
+    margin-bottom: 14px;
+  }
+  .snapshot-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .snapshot-item {
+    background: var(--light-gray);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .snapshot-item:nth-child(even) { background: #dde3df; }
+  .snapshot-cta {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.55;
+    font-style: italic;
+  }
+
+  /* Block 3 - Fine print */
+  .fine-print {
+    padding: 16px 20px;
+    border-top: 3px solid var(--amber);
+  }
+  .fine-print-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--dark-green);
+    margin-bottom: 10px;
+  }
+  .fine-print p {
+    font-size: 12px;
+    color: var(--text-light);
+    line-height: 1.6;
+    margin-bottom: 6px;
+  }
+  .fine-print p:last-child { margin-bottom: 0; }
+
+  /* ── NEW ASSESSMENT BUTTON ── */
+  .new-assessment-wrap {
+    margin: 20px 16px 0;
+  }
+  .btn-new {
+    width: 100%;
+    padding: 16px;
+    background: transparent;
+    color: var(--dark-green);
+    border: 2px solid var(--dark-green);
+    border-radius: var(--radius);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-new:active { background: var(--dark-green); color: var(--white); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up { animation: fadeUp 0.5s ease forwards; }
+  .fade-up-1 { animation-delay: 0.05s; opacity: 0; }
+  .fade-up-2 { animation-delay: 0.15s; opacity: 0; }
+  .fade-up-3 { animation-delay: 0.25s; opacity: 0; }
+  .fade-up-4 { animation-delay: 0.35s; opacity: 0; }
+  .fade-up-5 { animation-delay: 0.45s; opacity: 0; }
+  .fade-up-6 { animation-delay: 0.55s; opacity: 0; }
+
+  /* ── SAVE AS PDF BUTTON ── */
+  .btn-pdf {
+    width: 100%;
+    padding: 16px;
+    background: var(--amber);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(231,155,60,0.4);
+    transition: all 0.2s;
+    margin-bottom: 12px;
+  }
+  .btn-pdf:active { transform: scale(0.98); }
+
+  /* ── PRINT / PDF STYLES ── */
+  @media print {
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body { background: #fff !important; padding: 0 !important; }
+
+    /* Hide form page and buttons when printing */
+    #form-page, .new-assessment-wrap, .btn-pdf, .btn-new, .progress-wrap { display: none !important; }
+    #results-page { display: block !important; }
+
+    /* Page setup */
+    @page { margin: 0.5in; size: letter portrait; }
+
+    /* Page 1: Inputs summary */
+    .print-inputs { display: block !important; page-break-after: always; }
+
+    /* Page 2+: Score cards and totals */
+    .score-grid, .totals-wrap { page-break-inside: avoid; }
+    .result-block { page-break-inside: avoid; }
+    .score-card { box-shadow: none !important; border: 1px solid #ddd; }
+    .total-card { box-shadow: none !important; }
+
+    /* Remove animations */
+    .fade-up { opacity: 1 !important; animation: none !important; }
+
+    /* Fix colors for print */
+    .results-header { background: #2d4d3f !important; -webkit-print-color-adjust: exact; }
+    .score-card-header { background: #2d4d3f !important; }
+    .section-header { background: #407c65 !important; }
+    .total-card.year1 { background: #407c65 !important; }
+    .total-card.year3 { background: #2d4d3f !important; }
+    .snapshot-header { background: #3d3d3d !important; }
+    .logo-img { filter: none !important; }
+
+    /* Margins for sections */
+    .score-grid { margin: 12px 0 0 !important; }
+    .totals-wrap { margin: 10px 0 0 !important; }
+    .result-block { margin: 10px 0 0 !important; }
+  }
+
+  /* Print inputs summary - hidden on screen, shown on print */
+  .print-inputs {
+    display: none;
+  }
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--dark-green);
+    color: var(--white);
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease;
+    z-index: 999;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════ FORM PAGE -->
+<div id="form-page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo-wrap">
+      <img class="logo-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABcAAAAFlCAYAAADMLUusAAAACXBIWXMAAC4jAAAuIwF4pT92AAAO4WlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDUgNzkuMTYzNDk5LCAyMDE4LzA4LzEzLTE2OjQwOjIyICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczp4bXBUUGc9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC90L3BnLyIgeG1sbnM6c3REaW09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9EaW1lbnNpb25zIyIgeG1sbnM6eG1wRz0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL2cvIiB4bWxuczpwaG90b3Nob3A9Imh0dHA6Ly9ucy5hZG9iZS5jb20vcGhvdG9zaG9wLzEuMC8iIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiB4bXA6Q3JlYXRvclRvb2w9IkFkb2JlIElsbHVzdHJhdG9yIENDIDIzLjEgKE1hY2ludG9zaCkiIHhtcDpDcmVhdGVEYXRlPSIyMDE5LTEyLTEzVDE1OjA5OjU2LTA2OjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyMC0wMS0zMFQxNDoxNzowOC0wNjowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyMC0wMS0zMFQxNDoxNzowOC0wNjowMCIgeG1wTU06RG9jdW1lbnRJRD0iYWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOmMyMzg0OGM0LTM5OTAtZTk0MS1hMTcyLTk4MDIyYjAwMjI2ZiIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDowMThlZWZhNS0zMDU3LTQxYzgtOTUxMi00M2EzNTViYzBjODEiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0idXVpZDo1NzU0NkZFQzVENTcxMURDOUVCM0REQUJGQTIzODhERiIgeG1wTU06UmVuZGl0aW9uQ2xhc3M9InByb29mOnBkZiIgeG1wVFBnOk5QYWdlcz0iMSIgeG1wVFBnOkhhc1Zpc2libGVUcmFuc3BhcmVuY3k9IkZhbHNlIiB4bXBUUGc6SGFzVmlzaWJsZU92ZXJwcmludD0iRmFsc2UiIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiIHBob3Rvc2hvcDpJQ0NQcm9maWxlPSJzUkdCIElFQzYxOTY2LTIuMSI+IDxkYzp0aXRsZT4gPHJkZjpBbHQ+IDxyZGY6bGkgeG1sOmxhbmc9IngtZGVmYXVsdCI+c2hlbGxfbGV0dGVyX1YuYWk8L3JkZjpsaT4gPC9yZGY6QWx0PiA8L2RjOnRpdGxlPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDplM2UyMDZjNi05NGM1LTRlYzktYjAzZS05YjA2Yzk5MWE4NmEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6ZTNlMjA2YzYtOTRjNS00ZWM5LWIwM2UtOWIwNmM5OTFhODZhIiBzdFJlZjpvcmlnaW5hbERvY3VtZW50SUQ9InV1aWQ6NTc1NDZGRUM1RDU3MTFEQzlFQjNEREFCRkEyMzg4REYiIHN0UmVmOnJlbmRpdGlvbkNsYXNzPSJwcm9vZjpwZGYiLz4gPHhtcE1NOkhpc3Rvcnk+IDxyZGY6U2VxPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6QjIyNzU3NUMyMTI0NjgxMTgwODM5NDQ2MEU5MjZBMzEiIHN0RXZ0OndoZW49IjIwMTMtMDMtMzBUMTk6NTQ6MzEtMDU6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIElsbHVzdHJhdG9yIENTNSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6MTQ3Y2YyYTMtZWFiOC00MmQxLWI5NTMtZmE3OWI1NTA3MzkzIiBzdEV2dDp3aGVuPSIyMDE5LTEyLTEzVDE1OjA5OjU2LTA2OjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBJbGx1c3RyYXRvciBDQyAyMy4xIChNYWNpbnRvc2gpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjb252ZXJ0ZWQiIHN0RXZ0OnBhcmFtZXRlcnM9ImZyb20gYXBwbGljYXRpb24vcG9zdHNjcmlwdCB0byBhcHBsaWNhdGlvbi92bmQuYWRvYmUuaWxsdXN0cmF0b3IiLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImNvbnZlcnRlZCIgc3RFdnQ6cGFyYW1ldGVycz0iZnJvbSBhcHBsaWNhdGlvbi9wb3N0c2NyaXB0IHRvIGltYWdlL2Vwc2YiLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmUzZTIwNmM2LTk0YzUtNGVjOS1iMDNlLTliMDZjOTkxYTg2YSIgc3RFdnQ6d2hlbj0iMjAyMC0wMS0zMFQxNDoxNzowOC0wNjowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTkgKE1hY2ludG9zaCkiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImNvbnZlcnRlZCIgc3RFdnQ6cGFyYW1ldGVycz0iZnJvbSBhcHBsaWNhdGlvbi9wb3N0c2NyaXB0IHRvIGltYWdlL3BuZyIvPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0iZGVyaXZlZCIgc3RFdnQ6cGFyYW1ldGVycz0iY29udmVydGVkIGZyb20gaW1hZ2UvZXBzZiB0byBpbWFnZS9wbmciLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjAxOGVlZmE1LTMwNTctNDFjOC05NTEyLTQzYTM1NWJjMGM4MSIgc3RFdnQ6d2hlbj0iMjAyMC0wMS0zMFQxNDoxNzowOC0wNjowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTkgKE1hY2ludG9zaCkiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDx4bXBUUGc6TWF4UGFnZVNpemUgc3REaW06dz0iNTEuMDAwMDAwIiBzdERpbTpoPSI2Ni4wMDAwMDAiIHN0RGltOnVuaXQ9IlBpY2FzIi8+IDx4bXBUUGc6UGxhdGVOYW1lcz4gPHJkZjpTZXE+IDxyZGY6bGk+Q3lhbjwvcmRmOmxpPiA8cmRmOmxpPk1hZ2VudGE8L3JkZjpsaT4gPHJkZjpsaT5ZZWxsb3c8L3JkZjpsaT4gPHJkZjpsaT5CbGFjazwvcmRmOmxpPiA8L3JkZjpTZXE+IDwveG1wVFBnOlBsYXRlTmFtZXM+IDx4bXBUUGc6U3dhdGNoR3JvdXBzPiA8cmRmOlNlcT4gPHJkZjpsaT4gPHJkZjpEZXNjcmlwdGlvbiB4bXBHOmdyb3VwTmFtZT0iRGVmYXVsdCBTd2F0Y2ggR3JvdXAiIHhtcEc6Z3JvdXBUeXBlPSIwIj4gPHhtcEc6Q29sb3JhbnRzPiA8cmRmOlNlcT4gPHJkZjpsaSB4bXBHOnN3YXRjaE5hbWU9Ik1UIFZpcmlkaWFuIFJHQiIgeG1wRzp0eXBlPSJQUk9DRVNTIiB4bXBHOnRpbnQ9IjEwMC4wMDAwMDAiIHhtcEc6bW9kZT0iUkdCIiB4bXBHOnJlZD0iNjQiIHhtcEc6Z3JlZW49IjEyNCIgeG1wRzpibHVlPSIxMDEiLz4gPHJkZjpsaSB4bXBHOnN3YXRjaE5hbWU9Ik1UIERhcmsgR3JlZW4gUkdCIiB4bXBHOnR5cGU9IlBST0NFU1MiIHhtcEc6dGludD0iMTAwLjAwMDAwMCIgeG1wRzptb2RlPSJSR0IiIHhtcEc6cmVkPSI0NiIgeG1wRzpncmVlbj0iNzYiIHhtcEc6Ymx1ZT0iNjMiLz4gPC9yZGY6U2VxPiA8L3htcEc6Q29sb3JhbnRzPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6bGk+IDwvcmRmOlNlcT4gPC94bXBUUGc6U3dhdGNoR3JvdXBzPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PtKOhbsAAGfhSURBVHic7d1PcttIuv77p0/0/KBWcKgF4Da9AqQWwFv0CkwNcKeS5/iFpAjMLY0xEL2Coi8X4OQKzL5cgNkraJ4V1B1ksk2rZFskE0j8+X4iHNXtIhNvSSAIPEi8+bc///xTAAAAAAAAAAD0zX/FLgAAAAAAAAAAgDoQgAMAAAAAAAAAeokAHAAAAAAAAADQT3/++ed3f0yRfzVFPotdFwAgHFPkM1PkX2PXAQAAAAAAUKfnefffX3jNSNKTKfJbSR8lPdiy2jVZJADgfKbIE0lTSbdyx3YAAAAAAIBBeSkA3xvJhSbXpsgfRRAOAJ3gg+8bSdeSkpi1AAAAAAAAxPSzAHwvkQvCb02RzyXd27LaxVoAAAAAgCPRAQAA" alt="Magnus Technologies">
+    </div>
+    <div class="header-title">Fleet Fitness Assessment</div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel">0 of 15 fields completed</div>
+  </div>
+
+  <!-- Section 1: Contact Info -->
+  <div class="section fade-up fade-up-1">
+    <div class="section-header">
+      <div class="icon">👤</div>
+      <h2>Contact Information</h2>
+    </div>
+    <div class="section-body">
+      <div class="two-col">
+        <div class="field">
+          <label>First Name <span class="req">*</span></label>
+          <input type="text" id="firstName" placeholder="First" autocomplete="off">
+          <div class="err-msg" id="err-firstName">Required</div>
+        </div>
+        <div class="field">
+          <label>Last Name <span class="req">*</span></label>
+          <input type="text" id="lastName" placeholder="Last" autocomplete="off">
+          <div class="err-msg" id="err-lastName">Required</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Email Address <span class="req">*</span></label>
+        <input type="email" id="email" placeholder="you@company.com" autocomplete="off">
+        <div class="err-msg" id="err-email">Must contain a valid email address</div>
+      </div>
+      <div class="field">
+        <label>Company Name <span class="req">*</span></label>
+        <input type="text" id="company" placeholder="Your company" autocomplete="off">
+        <div class="err-msg" id="err-company">Required</div>
+      </div>
+      <div class="field">
+        <label>Your Role <span class="req">*</span></label>
+        <div class="select-wrap">
+          <select id="role">
+            <option value="">Select your role...</option>
+            <option>CFO / Controller</option>
+            <option>COO / CTO / VP</option>
+            <option>GM / Director of Operations</option>
+            <option>IT / Systems</option>
+            <option>Operations Manager / Dispatcher</option>
+            <option>Owner / President / CEO</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="err-msg" id="err-role">Please select your role</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Fleet Profile -->
+  <div class="section fade-up fade-up-2">
+    <div class="section-header">
+      <div class="icon">🚛</div>
+      <h2>Fleet Profile</h2>
+    </div>
+    <div class="section-body">
+
+      <div class="field">
+        <label>What type of trailers do you haul? <span class="req">*</span></label>
+        <div class="checkbox-grid" id="trailerTypes">
+          <label class="check-item"><input type="checkbox" value="Dry Van"><div class="check-box"></div><span class="check-label">Dry Van</span></label>
+          <label class="check-item"><input type="checkbox" value="Flatbed"><div class="check-box"></div><span class="check-label">Flatbed</span></label>
+          <label class="check-item"><input type="checkbox" value="Reefer"><div class="check-box"></div><span class="check-label">Reefer</span></label>
+          <label class="check-item"><input type="checkbox" value="Tankers"><div class="check-box"></div><span class="check-label">Tankers</span></label>
+          <label class="check-item"><input type="checkbox" value="Vehicle"><div class="check-box"></div><span class="check-label">Vehicle</span></label>
+          <label class="check-item"><input type="checkbox" value="Chassis with dollies"><div class="check-box"></div><span class="check-label">Chassis with dollies</span></label>
+          <label class="check-item"><input type="checkbox" value="Other"><div class="check-box"></div><span class="check-label">Other</span></label>
+        </div>
+        <div class="err-msg" id="err-trailers">Please select at least one trailer type</div>
+      </div>
+
+      <div class="field">
+        <label>Number of Drivers <span class="req">*</span></label>
+        <input type="number" id="numDrivers" placeholder="e.g. 50" min="10" max="1000" inputmode="numeric">
+        <div class="range-hint">Enter a value between 10 and 1,000</div>
+        <div class="err-msg" id="err-numDrivers">Please enter a number between 10 and 1,000</div>
+      </div>
+
+      <div class="field">
+        <label>How many trucks do you operate? <span class="req">*</span></label>
+        <input type="number" id="numTrucks" placeholder="e.g. 45" min="10" max="1000" inputmode="numeric">
+        <div class="range-hint">Enter a value between 10 and 1,000</div>
+        <div class="err-msg" id="err-numTrucks">Please enter a number between 10 and 1,000</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Section 3: Operations -->
+  <div class="section fade-up fade-up-3">
+    <div class="section-header">
+      <div class="icon">⚙️</div>
+      <h2>Operations & Technology</h2>
+    </div>
+    <div class="section-body">
+
+      <div class="field">
+        <label>What are you using to manage dispatch & operations today? <span class="req">*</span></label>
+        <div class="select-wrap">
+          <select id="tms">
+            <option value="">Select your current system...</option>
+            <option>Alvys</option>
+            <option>McLeod</option>
+            <option>PCS</option>
+            <option>Rose Rocket</option>
+            <option>TMW</option>
+            <option>TruckMate</option>
+            <option>Other TMS</option>
+            <option>Multiple disconnected systems</option>
+            <option>Spreadsheets / Free tools</option>
+            <option>Not sure</option>
+          </select>
+        </div>
+        <div class="err-msg" id="err-tms">Please make a selection</div>
+      </div>
+
+      <div class="field">
+        <label>Approximate Driver Turnover Rate <span class="req">*</span></label>
+        <div class="select-wrap">
+          <select id="turnover">
+            <option value="">Select turnover range...</option>
+            <option value="0.25">20–30%</option>
+            <option value="0.35">30–40%</option>
+            <option value="0.45">40–50%</option>
+            <option value="0.55">50–60%</option>
+            <option value="0.65">60–70%</option>
+            <option value="0.75">70–80%</option>
+            <option value="0.90">90%+</option>
+            <option value="0.50">Not Sure</option>
+          </select>
+        </div>
+        <div class="err-msg" id="err-turnover">Please select a turnover rate</div>
+      </div>
+
+      <div class="field">
+        <label>What % of your miles are running empty? <span class="req">*</span></label>
+        <div class="select-wrap">
+          <select id="emptyMiles">
+            <option value="">Select empty mile range...</option>
+            <option value="0.15">10–20%</option>
+            <option value="0.25">20–30%</option>
+            <option value="0.35">30–40%</option>
+            <option value="0.45">More than 40%</option>
+          </select>
+        </div>
+        <div class="err-msg" id="err-emptyMiles">Please make a selection</div>
+      </div>
+
+      <div class="field">
+        <label>Does your current TMS show out-of-route miles for your drivers? <span class="req">*</span></label>
+        <div class="select-wrap">
+          <select id="oorKnown" onchange="toggleOOR()">
+            <option value="">Select...</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+            <option value="uncertain">Uncertain</option>
+          </select>
+        </div>
+        <div class="err-msg" id="err-oorKnown">Please make a selection</div>
+
+        <div class="conditional-field" id="oorEntryWrap">
+          <label>Your Out-of-Route Mile Percentage <span class="req">*</span></label>
+          <input type="number" id="oorEntry" placeholder="e.g. 8" min="1" max="90" inputmode="decimal" step="0.1">
+          <div class="range-hint">Enter a value between 1% and 90%</div>
+          <div class="err-msg" id="err-oorEntry">Please enter a value between 1 and 90</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Section 4: Pain Points -->
+  <div class="section fade-up fade-up-4">
+    <div class="section-header">
+      <div class="icon">🎯</div>
+      <h2>Current Challenges</h2>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label>What's making your job most difficult right now? <span class="req">*</span></label>
+        <div class="checkbox-grid single-col" id="painPoints">
+          <label class="check-item"><input type="checkbox" value="Empty miles & poor asset utilization"><div class="check-box"></div><span class="check-label">Empty miles &amp; poor asset utilization</span></label>
+          <label class="check-item"><input type="checkbox" value="Slow payments & invoicing headaches"><div class="check-box"></div><span class="check-label">Slow payments &amp; invoicing headaches</span></label>
+          <label class="check-item"><input type="checkbox" value="Driver turnover & retention"><div class="check-box"></div><span class="check-label">Driver turnover &amp; retention</span></label>
+          <label class="check-item"><input type="checkbox" value="Compliance risk & manual processes"><div class="check-box"></div><span class="check-label">Compliance risk &amp; manual processes</span></label>
+          <label class="check-item"><input type="checkbox" value="Outgrowing our current technology"><div class="check-box"></div><span class="check-label">Outgrowing our current technology</span></label>
+          <label class="check-item"><input type="checkbox" value="Back office inefficiency & overhead"><div class="check-box"></div><span class="check-label">Back office inefficiency &amp; overhead</span></label>
+          <label class="check-item"><input type="checkbox" value="No visibility across the operation"><div class="check-box"></div><span class="check-label">No visibility across the operation</span></label>
+        </div>
+        <div class="err-msg" id="err-painPoints">Please select at least one challenge</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Submit -->
+  <div class="submit-wrap fade-up fade-up-5">
+    <button class="btn-submit" onclick="submitAssessment()">Calculate My Savings →</button>
+  </div>
+
+</div><!-- end form-page -->
+
+
+<!-- ══════════════════════════════════════════════════════ RESULTS PAGE -->
+<div id="results-page">
+
+  <div class="results-header">
+    <div class="logo-wrap" style="margin-bottom:16px;">
+      <img class="logo-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABcAAAAFlCAYAAADMLUusAAAACXBIWXMAAC4jAAAuIwF4pT92AAAO4WlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDUgNzkuMTYzNDk5LCAyMDE4LzA4LzEzLTE2OjQwOjIyICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczp4bXBUUGc9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC90L3BnLyIgeG1sbnM6c3REaW09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9EaW1lbnNpb25zIyIgeG1sbnM6eG1wRz0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL2cvIiB4bWxuczpwaG90b3Nob3A9Imh0dHA6Ly9ucy5hZG9iZS5jb20vcGhvdG9zaG9wLzEuMC8iIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiB4bXA6Q3JlYXRvclRvb2w9IkFkb2JlIElsbHVzdHJhdG9yIENDIDIzLjEgKE1hY2ludG9zaCkiIHhtcDpDcmVhdGVEYXRlPSIyMDE5LTEyLTEzVDE1OjA5OjU2LTA2OjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyMC0wMS0zMFQxNDoxNzowOC0wNjowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyMC0wMS0zMFQxNDoxNzowOC0wNjowMCIgeG1wTU06RG9jdW1lbnRJRD0iYWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOmMyMzg0OGM0LTM5OTAtZTk0MS1hMTcyLTk4MDIyYjAwMjI2ZiIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDowMThlZWZhNS0zMDU3LTQxYzgtOTUxMi00M2EzNTViYzBjODEiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0idXVpZDo1NzU0NkZFQzVENTcxMURDOUVCM0REQUJGQTIzODhERiIgeG1wTU06UmVuZGl0aW9uQ2xhc3M9InByb29mOnBkZiIgeG1wVFBnOk5QYWdlcz0iMSIgeG1wVFBnOkhhc1Zpc2libGVUcmFuc3BhcmVuY3k9IkZhbHNlIiB4bXBUUGc6SGFzVmlzaWJsZU92ZXJwcmludD0iRmFsc2UiIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiIHBob3Rvc2hvcDpJQ0NQcm9maWxlPSJzUkdCIElFQzYxOTY2LTIuMSI+IDxkYzp0aXRsZT4gPHJkZjpBbHQ+IDxyZGY6bGkgeG1sOmxhbmc9IngtZGVmYXVsdCI+c2hlbGxfbGV0dGVyX1YuYWk8L3JkZjpsaT4gPC9yZGY6QWx0PiA8L2RjOnRpdGxlPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDplM2UyMDZjNi05NGM1LTRlYzktYjAzZS05YjA2Yzk5MWE4NmEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6ZTNlMjA2YzYtOTRjNS00ZWM5LWIwM2UtOWIwNmM5OTFhODZhIiBzdFJlZjpvcmlnaW5hbERvY3VtZW50SUQ9InV1aWQ6NTc1NDZGRUM1RDU3MTFEQzlFQjNEREFCRkEyMzg4REYiIHN0UmVmOnJlbmRpdGlvbkNsYXNzPSJwcm9vZjpwZGYiLz4gPHhtcE1NOkhpc3Rvcnk+IDxyZGY6U2VxPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6QjIyNzU3NUMyMTI0NjgxMTgwODM5NDQ2MEU5MjZBMzEiIHN0RXZ0OndoZW49IjIwMTMtMDMtMzBUMTk6NTQ6MzEtMDU6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIElsbHVzdHJhdG9yIENTNSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6MTQ3Y2YyYTMtZWFiOC00MmQxLWI5NTMtZmE3OWI1NTA3MzkzIiBzdEV2dDp3aGVuPSIyMDE5LTEyLTEzVDE1OjA5OjU2LTA2OjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBJbGx1c3RyYXRvciBDQyAyMy4xIChNYWNpbnRvc2gpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjb252ZXJ0ZWQiIHN0RXZ0OnBhcmFtZXRlcnM9ImZyb20gYXBwbGljYXRpb24vcG9zdHNjcmlwdCB0byBhcHBsaWNhdGlvbi92bmQuYWRvYmUuaWxsdXN0cmF0b3IiLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImNvbnZlcnRlZCIgc3RFdnQ6cGFyYW1ldGVycz0iZnJvbSBhcHBsaWNhdGlvbi9wb3N0c2NyaXB0IHRvIGltYWdlL2Vwc2YiLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmUzZTIwNmM2LTk0YzUtNGVjOS1iMDNlLTliMDZjOTkxYTg2YSIgc3RFdnQ6d2hlbj0iMjAyMC0wMS0zMFQxNDoxNzowOC0wNjowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTkgKE1hY2ludG9zaCkiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImNvbnZlcnRlZCIgc3RFdnQ6cGFyYW1ldGVycz0iZnJvbSBhcHBsaWNhdGlvbi9wb3N0c2NyaXB0IHRvIGltYWdlL3BuZyIvPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0iZGVyaXZlZCIgc3RFdnQ6cGFyYW1ldGVycz0iY29udmVydGVkIGZyb20gaW1hZ2UvZXBzZiB0byBpbWFnZS9wbmciLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjAxOGVlZmE1LTMwNTctNDFjOC05NTEyLTQzYTM1NWJjMGM4MSIgc3RFdnQ6d2hlbj0iMjAyMC0wMS0zMFQxNDoxNzowOC0wNjowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTkgKE1hY2ludG9zaCkiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDx4bXBUUGc6TWF4UGFnZVNpemUgc3REaW06dz0iNTEuMDAwMDAwIiBzdERpbTpoPSI2Ni4wMDAwMDAiIHN0RGltOnVuaXQ9IlBpY2FzIi8+IDx4bXBUUGc6UGxhdGVOYW1lcz4gPHJkZjpTZXE+IDxyZGY6bGk+Q3lhbjwvcmRmOmxpPiA8cmRmOmxpPk1hZ2VudGE8L3JkZjpsaT4gPHJkZjpsaT5ZZWxsb3c8L3JkZjpsaT4gPHJkZjpsaT5CbGFjazwvcmRmOmxpPiA8L3JkZjpTZXE+IDwveG1wVFBnOlBsYXRlTmFtZXM+IDx4bXBUUGc6U3dhdGNoR3JvdXBzPiA8cmRmOlNlcT4gPHJkZjpsaT4gPHJkZjpEZXNjcmlwdGlvbiB4bXBHOmdyb3VwTmFtZT0iRGVmYXVsdCBTd2F0Y2ggR3JvdXAiIHhtcEc6Z3JvdXBUeXBlPSIwIj4gPHhtcEc6Q29sb3JhbnRzPiA8cmRmOlNlcT4gPHJkZjpsaSB4bXBHOnN3YXRjaE5hbWU9Ik1UIFZpcmlkaWFuIFJHQiIgeG1wRzp0eXBlPSJQUk9DRVNTIiB4bXBHOnRpbnQ9IjEwMC4wMDAwMDAiIHhtcEc6bW9kZT0iUkdCIiB4bXBHOnJlZD0iNjQiIHhtcEc6Z3JlZW49IjEyNCIgeG1wRzpibHVlPSIxMDEiLz4gPHJkZjpsaSB4bXBHOnN3YXRjaE5hbWU9Ik1UIERhcmsgR3JlZW4gUkdCIiB4bXBHOnR5cGU9IlBST0NFU1MiIHhtcEc6dGludD0iMTAwLjAwMDAwMCIgeG1wRzptb2RlPSJSR0IiIHhtcEc6cmVkPSI0NiIgeG1wRzpncmVlbj0iNzYiIHhtcEc6Ymx1ZT0iNjMiLz4gPC9yZGY6U2VxPiA8L3htcEc6Q29sb3JhbnRzPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6bGk+IDwvcmRmOlNlcT4gPC94bXBUUGc6U3dhdGNoR3JvdXBzPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PtKOhbsAAGfhSURBVHic7d1PcttIuv77p0/0/KBWcKgF4Da9AqQWwFv0CkwNcKeS5/iFpAjMLY0xEL2Coi8X4OQKzL5cgNkraJ4V1B1ksk2rZFskE0j8+X4iHNXtIhNvSSAIPEi8+bc///xTAAAAAAAAAAD0zX/FLgAAAAAAAAAAgDoQgAMAAAAAAAAAeokAHAAAAAAAAADQT3/++ed3f0yRfzVFPotdFwAgHFPkM1PkX2PXAQAAAAAAUKfnefffX3jNSNKTKfJbSR8lPdiy2jVZJADgfKbIE0lTSbdyx3YAAAAAAIBBeSkA3xvJhSbXpsgfRRAOAJ3gg+8bSdeSkpi1AAAAAAAAxPSzAHwvkQvCb02RzyXd27LaxVoAAAAAgCPRAQAA" alt="Magnus Technologies">
+    </div>
+    <div class="name-line" id="res-name-line">Fleet Assessment Results</div>
+    <h1>YOUR FLEET<br>FITNESS REPORT</h1>
+  </div>
+
+  <!-- PRINT ONLY: Page 1 - Inputs Summary -->
+  <div class="print-inputs" id="printInputs">
+    <div class="results-header" style="background:#2d4d3f; padding:24px; text-align:center;">
+      <div class="logo-wrap" style="margin-bottom:12px;">
+        <img class="logo-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABcAAAAFlCAYAAADMLUusAAAACXBIWXMAAC4jAAAuIwF4pT92AAAO4WlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDUgNzkuMTYzNDk5LCAyMDE4LzA4LzEzLTE2OjQwOjIyICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczp4bXBUUGc9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC90L3BnLyIgeG1sbnM6c3REaW09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9EaW1lbnNpb25zIyIgeG1sbnM6eG1wRz0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL2cvIiB4bWxuczpwaG90b3Nob3A9Imh0dHA6Ly9ucy5hZG9iZS5jb20vcGhvdG9zaG9wLzEuMC8iIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiB4bXA6Q3JlYXRvclRvb2w9IkFkb2JlIElsbHVzdHJhdG9yIENDIDIzLjEgKE1hY2ludG9zaCkiIHhtcDpDcmVhdGVEYXRlPSIyMDE5LTEyLTEzVDE1OjA5OjU2LTA2OjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyMC0wMS0zMFQxNDoxNzowOC0wNjowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyMC0wMS0zMFQxNDoxNzowOC0wNjowMCIgeG1wTU06RG9jdW1lbnRJRD0iYWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOmMyMzg0OGM0LTM5OTAtZTk0MS1hMTcyLTk4MDIyYjAwMjI2ZiIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDowMThlZWZhNS0zMDU3LTQxYzgtOTUxMi00M2EzNTViYzBjODEiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0idXVpZDo1NzU0NkZFQzVENTcxMURDOUVCM0REQUJGQTIzODhERiIgeG1wTU06UmVuZGl0aW9uQ2xhc3M9InByb29mOnBkZiIgeG1wVFBnOk5QYWdlcz0iMSIgeG1wVFBnOkhhc1Zpc2libGVUcmFuc3BhcmVuY3k9IkZhbHNlIiB4bXBUUGc6SGFzVmlzaWJsZU92ZXJwcmludD0iRmFsc2UiIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiIHBob3Rvc2hvcDpJQ0NQcm9maWxlPSJzUkdCIElFQzYxOTY2LTIuMSI+IDxkYzp0aXRsZT4gPHJkZjpBbHQ+IDxyZGY6bGkgeG1sOmxhbmc9IngtZGVmYXVsdCI+c2hlbGxfbGV0dGVyX1YuYWk8L3JkZjpsaT4gPC9yZGY6QWx0PiA8L2RjOnRpdGxlPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDplM2UyMDZjNi05NGM1LTRlYzktYjAzZS05YjA2Yzk5MWE4NmEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6ZTNlMjA2YzYtOTRjNS00ZWM5LWIwM2UtOWIwNmM5OTFhODZhIiBzdFJlZjpvcmlnaW5hbERvY3VtZW50SUQ9InV1aWQ6NTc1NDZGRUM1RDU3MTFEQzlFQjNEREFCRkEyMzg4REYiIHN0UmVmOnJlbmRpdGlvbkNsYXNzPSJwcm9vZjpwZGYiLz4gPHhtcE1NOkhpc3Rvcnk+IDxyZGY6U2VxPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6QjIyNzU3NUMyMTI0NjgxMTgwODM5NDQ2MEU5MjZBMzEiIHN0RXZ0OndoZW49IjIwMTMtMDMtMzBUMTk6NTQ6MzEtMDU6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIElsbHVzdHJhdG9yIENTNSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6MTQ3Y2YyYTMtZWFiOC00MmQxLWI5NTMtZmE3OWI1NTA3MzkzIiBzdEV2dDp3aGVuPSIyMDE5LTEyLTEzVDE1OjA5OjU2LTA2OjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBJbGx1c3RyYXRvciBDQyAyMy4xIChNYWNpbnRvc2gpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjb252ZXJ0ZWQiIHN0RXZ0OnBhcmFtZXRlcnM9ImZyb20gYXBwbGljYXRpb24vcG9zdHNjcmlwdCB0byBhcHBsaWNhdGlvbi92bmQuYWRvYmUuaWxsdXN0cmF0b3IiLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImNvbnZlcnRlZCIgc3RFdnQ6cGFyYW1ldGVycz0iZnJvbSBhcHBsaWNhdGlvbi9wb3N0c2NyaXB0IHRvIGltYWdlL2Vwc2YiLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmUzZTIwNmM2LTk0YzUtNGVjOS1iMDNlLTliMDZjOTkxYTg2YSIgc3RFdnQ6d2hlbj0iMjAyMC0wMS0zMFQxNDoxNzowOC0wNjowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTkgKE1hY2ludG9zaCkiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImNvbnZlcnRlZCIgc3RFdnQ6cGFyYW1ldGVycz0iZnJvbSBhcHBsaWNhdGlvbi9wb3N0c2NyaXB0IHRvIGltYWdlL3BuZyIvPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0iZGVyaXZlZCIgc3RFdnQ6cGFyYW1ldGVycz0iY29udmVydGVkIGZyb20gaW1hZ2UvZXBzZiB0byBpbWFnZS9wbmciLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjAxOGVlZmE1LTMwNTctNDFjOC05NTEyLTQzYTM1NWJjMGM4MSIgc3RFdnQ6d2hlbj0iMjAyMC0wMS0zMFQxNDoxNzowOC0wNjowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTkgKE1hY2ludG9zaCkiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDx4bXBUUGc6TWF4UGFnZVNpemUgc3REaW06dz0iNTEuMDAwMDAwIiBzdERpbTpoPSI2Ni4wMDAwMDAiIHN0RGltOnVuaXQ9IlBpY2FzIi8+IDx4bXBUUGc6UGxhdGVOYW1lcz4gPHJkZjpTZXE+IDxyZGY6bGk+Q3lhbjwvcmRmOmxpPiA8cmRmOmxpPk1hZ2VudGE8L3JkZjpsaT4gPHJkZjpsaT5ZZWxsb3c8L3JkZjpsaT4gPHJkZjpsaT5CbGFjazwvcmRmOmxpPiA8L3JkZjpTZXE+IDwveG1wVFBnOlBsYXRlTmFtZXM+IDx4bXBUUGc6U3dhdGNoR3JvdXBzPiA8cmRmOlNlcT4gPHJkZjpsaT4gPHJkZjpEZXNjcmlwdGlvbiB4bXBHOmdyb3VwTmFtZT0iRGVmYXVsdCBTd2F0Y2ggR3JvdXAiIHhtcEc6Z3JvdXBUeXBlPSIwIj4gPHhtcEc6Q29sb3JhbnRzPiA8cmRmOlNlcT4gPHJkZjpsaSB4bXBHOnN3YXRjaE5hbWU9Ik1UIFZpcmlkaWFuIFJHQiIgeG1wRzp0eXBlPSJQUk9DRVNTIiB4bXBHOnRpbnQ9IjEwMC4wMDAwMDAiIHhtcEc6bW9kZT0iUkdCIiB4bXBHOnJlZD0iNjQiIHhtcEc6Z3JlZW49IjEyNCIgeG1wRzpibHVlPSIxMDEiLz4gPHJkZjpsaSB4bXBHOnN3YXRjaE5hbWU9Ik1UIERhcmsgR3JlZW4gUkdCIiB4bXBHOnR5cGU9IlBST0NFU1MiIHhtcEc6dGludD0iMTAwLjAwMDAwMCIgeG1wRzptb2RlPSJSR0IiIHhtcEc6cmVkPSI0NiIgeG1wRzpncmVlbj0iNzYiIHhtcEc6Ymx1ZT0iNjMiLz4gPC9yZGY6U2VxPiA8L3htcEc6Q29sb3JhbnRzPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6bGk+IDwvcmRmOlNlcT4gPC94bXBUUGc6U3dhdGNoR3JvdXBzPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PtKOhbsAAGfhSURBVHic7d1PcttIuv77p0/0/KBWcKgF4Da9AqQWwFv0CkwNcKeS5/iFpAjMLY0xEL2Coi8X4OQKzL5cgNkraJ4V1B1ksk2rZFskE0j8+X4iHNXtIhNvSSAIPEi8+bc///xTAAAAAAAAAAD0zX/FLgAAAAAAAAAAgDoQgAMAAAAAAAAAeokAHAAAAAAAAADQT3/++ed3f0yRfzVFPotdFwAgHFPkM1PkX2PXAQAAAAAAUKfnefffX3jNSNKTKfJbSR8lPdiy2jVZJADgfKbIE0lTSbdyx3YAAAAAAIBBeSkA3xvJhSbXpsgfRRAOAJ3gg+8bSdeSkpi1AAAAAAAAxPSzAHwvkQvCb02RzyXd27LaxVoAAAAAgCPRAQAA" alt="Magnus Technologies" style="height:52px; filter:brightness(0) invert(1);">
+      </div>
+      <div style="font-family:'Barlow Condensed',sans-serif; font-size:13px; letter-spacing:3px; color:#E79B3C; text-transform:uppercase; margin-bottom:4px;">Fleet Fitness Assessment</div>
+      <div style="font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:3px; color:#fff;">Assessment Inputs</div>
+    </div>
+    <div style="padding:20px; background:#fff;">
+
+      <div style="margin-bottom:18px; padding-bottom:14px; border-bottom:2px solid #407c65;">
+        <div style="font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#2d4d3f; margin-bottom:10px;">Contact Information</div>
+        <table style="width:100%; border-collapse:collapse; font-family:'Barlow',sans-serif; font-size:13px;">
+          <tr><td style="padding:5px 8px; color:#4a6358; width:45%;">Name</td><td style="padding:5px 8px; font-weight:600;" id="pi-name">—</td></tr>
+          <tr style="background:#f4f6f4;"><td style="padding:5px 8px; color:#4a6358;">Email</td><td style="padding:5px 8px; font-weight:600;" id="pi-email">—</td></tr>
+          <tr><td style="padding:5px 8px; color:#4a6358;">Company</td><td style="padding:5px 8px; font-weight:600;" id="pi-company">—</td></tr>
+          <tr style="background:#f4f6f4;"><td style="padding:5px 8px; color:#4a6358;">Role</td><td style="padding:5px 8px; font-weight:600;" id="pi-role">—</td></tr>
+        </table>
+      </div>
+
+      <div style="margin-bottom:18px; padding-bottom:14px; border-bottom:2px solid #407c65;">
+        <div style="font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#2d4d3f; margin-bottom:10px;">Fleet Profile</div>
+        <table style="width:100%; border-collapse:collapse; font-family:'Barlow',sans-serif; font-size:13px;">
+          <tr><td style="padding:5px 8px; color:#4a6358; width:45%;">Trailer Types</td><td style="padding:5px 8px; font-weight:600;" id="pi-trailers">—</td></tr>
+          <tr style="background:#f4f6f4;"><td style="padding:5px 8px; color:#4a6358;">Number of Drivers</td><td style="padding:5px 8px; font-weight:600;" id="pi-drivers">—</td></tr>
+          <tr><td style="padding:5px 8px; color:#4a6358;">Number of Trucks</td><td style="padding:5px 8px; font-weight:600;" id="pi-trucks">—</td></tr>
+        </table>
+      </div>
+
+      <div style="margin-bottom:18px; padding-bottom:14px; border-bottom:2px solid #407c65;">
+        <div style="font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#2d4d3f; margin-bottom:10px;">Operations & Technology</div>
+        <table style="width:100%; border-collapse:collapse; font-family:'Barlow',sans-serif; font-size:13px;">
+          <tr><td style="padding:5px 8px; color:#4a6358; width:45%;">Current TMS / System</td><td style="padding:5px 8px; font-weight:600;" id="pi-tms">—</td></tr>
+          <tr style="background:#f4f6f4;"><td style="padding:5px 8px; color:#4a6358;">Driver Turnover Rate</td><td style="padding:5px 8px; font-weight:600;" id="pi-turnover">—</td></tr>
+          <tr><td style="padding:5px 8px; color:#4a6358;">Empty Miles Rate</td><td style="padding:5px 8px; font-weight:600;" id="pi-emptymiles">—</td></tr>
+          <tr style="background:#f4f6f4;"><td style="padding:5px 8px; color:#4a6358;">OOR Miles Visibility</td><td style="padding:5px 8px; font-weight:600;" id="pi-oor">—</td></tr>
+        </table>
+      </div>
+
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#2d4d3f; margin-bottom:10px;">Current Challenges</div>
+        <div style="font-family:'Barlow',sans-serif; font-size:13px; font-weight:600; color:#1a2b24;" id="pi-pains">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Score Cards -->
+  <div class="score-grid">
+
+    <div class="score-card fade-up fade-up-1">
+      <div class="score-card-header">Empty Mile Cost</div>
+      <div class="score-row">
+        <div class="score-cell">
+          <div class="cell-label">Current State</div>
+          <div class="cell-value" id="res-empty-current">—</div>
+        </div>
+        <div class="score-cell savings">
+          <div class="cell-label">Potential Savings</div>
+          <div class="cell-value" id="res-empty-savings">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="score-card fade-up fade-up-2">
+      <div class="score-card-header">Driver Turnover Cost</div>
+      <div class="score-row">
+        <div class="score-cell">
+          <div class="cell-label">Current State</div>
+          <div class="cell-value" id="res-turnover-current">—</div>
+        </div>
+        <div class="score-cell savings">
+          <div class="cell-label">Potential Savings</div>
+          <div class="cell-value" id="res-turnover-savings">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="score-card fade-up fade-up-3">
+      <div class="score-card-header">Back Office Personnel Costs</div>
+      <div class="score-row">
+        <div class="score-cell">
+          <div class="cell-label">Current State</div>
+          <div class="cell-value" id="res-backoffice-current">—</div>
+        </div>
+        <div class="score-cell savings">
+          <div class="cell-label">Potential Savings</div>
+          <div class="cell-value" id="res-backoffice-savings">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="score-card fade-up fade-up-4">
+      <div class="score-card-header">Out-of-Route Mileage Costs</div>
+      <div class="score-row">
+        <div class="score-cell">
+          <div class="cell-label">Current State</div>
+          <div class="cell-value" id="res-oor-current">—</div>
+        </div>
+        <div class="score-cell savings">
+          <div class="cell-label">Potential Savings</div>
+          <div class="cell-value" id="res-oor-savings">—</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Totals -->
+  <div class="totals-wrap fade-up fade-up-5">
+    <div class="total-card year1">
+      <div class="total-inner">
+        <div class="total-label-wrap">
+          <div class="total-tag">Year 1 Estimate</div>
+          <div class="total-title">Potential Year 1 Savings</div>
+          <div class="total-subtitle">Based on realizing 25% of predicted savings in Year 1</div>
+        </div>
+        <div class="total-amount" id="res-year1">—</div>
+      </div>
+    </div>
+    <div class="total-card year3">
+      <div class="total-inner">
+        <div class="total-label-wrap">
+          <div class="total-tag">Fully Optimized</div>
+          <div class="total-title">Potential Annual Savings by Year 3</div>
+          <div class="total-subtitle">After fully optimized operations and driver satisfaction</div>
+        </div>
+        <div class="total-amount" id="res-year3">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Block 1: Info boxes -->
+  <div class="result-block fade-up fade-up-6">
+    <div class="info-boxes">
+      <div class="info-box">
+        <div class="info-box-icon">💰</div>
+        <div class="info-box-text">
+          <strong>MAGNUS customers commonly recover a portion of these estimated savings within the first year</strong> through improvements such as better backhaul matching, reduced deadhead and out-of-route miles, faster billing cycles, and fewer manual processes.
+        </div>
+      </div>
+      <div class="info-box">
+        <div class="info-box-icon">📅</div>
+        <div class="info-box-text">
+          These gains compound over time as data visibility improves and operational decisions become <strong><u>proactive</u></strong> rather than reactive.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Block 2: Conservative Snapshot -->
+  <div class="result-block fade-up fade-up-6">
+    <div class="snapshot-header">
+      <h3>This Is a Conservative Snapshot, Not a Full Analysis</h3>
+    </div>
+    <div class="snapshot-body">
+      <p class="snapshot-intro">This output is based on limited inputs and industry data. It does not yet account for several areas where fleets often realize additional savings, including:</p>
+      <div class="snapshot-grid">
+        <div class="snapshot-item">FMCSA compliance risk avoidance via clarity in driver fitness metrics</div>
+        <div class="snapshot-item">Cash flow acceleration from faster invoicing thanks to the Magnus Driver App</div>
+        <div class="snapshot-item">Real-time operational visibility across dispatch, drivers, and brokerage</div>
+        <div class="snapshot-item">Reduced reliance on fragmented systems and manual workarounds</div>
+        <div class="snapshot-item">Invoice accuracy improvements and revenue leakage reduction</div>
+        <div class="snapshot-item">Detention capture and accessorial billing recovery</div>
+      </div>
+      <p class="snapshot-cta">A deeper review using your actual operational data typically reveals additional opportunities beyond what this quick assessment can model. Let's schedule a call to uncover your real opportunity.</p>
+    </div>
+  </div>
+
+  <!-- Content Block 3: Fine Print -->
+  <div class="result-block fade-up fade-up-6">
+    <div class="fine-print">
+      <div class="fine-print-title">Fine Print About the Estimates</div>
+      <p>To provide meaningful output without requiring detailed financial data, we used conservative industry assumptions and publicly available benchmarks. Key modeling inputs included:</p>
+      <p>// Avg annual revenue per truck of approximately $180,000 for irregular-route truckload carriers (based on ATRI, DAT, FreightWaves data).</p>
+      <p>// Modest improvement scenarios rather than best-case outcomes.</p>
+      <p>// Typical cost ranges for driver turnover, inefficiency, and administrative overhead.</p>
+      <p>// Actual results vary by fleet, operating model, freight mix, and implementation approach. These figures are intended as directional guidance, not guarantees.</p>
+    </div>
+  </div>
+
+  <!-- New Assessment Button -->
+  <div class="new-assessment-wrap fade-up fade-up-6">
+    <button class="btn-pdf" onclick="savePDF()">📄 Save as PDF</button>
+    <button class="btn-new" onclick="startNewAssessment()">← Start New Assessment</button>
+  </div>
+
+</div><!-- end results-page -->
+
+<!-- Toast -->
+<div class="toast" id="toast">📧 Results sent to Magnus team!</div>
+
+
+<script>
+  // ── PROGRESS TRACKING
+  const allFields = ['firstName','lastName','email','company','role','trailerTypes','numDrivers','numTrucks','tms','turnover','emptyMiles','oorKnown','oorEntry','painPoints'];
+
+  function getCheckboxValues(containerId) {
+    const checked = document.querySelectorAll(`#${containerId} input[type="checkbox"]:checked`);
+    return Array.from(checked).map(cb => cb.value);
+  }
+
+  function updateProgress() {
+    let filled = 0;
+    const total = 15;
+
+    if (v('firstName').trim()) filled++;
+    if (v('lastName').trim()) filled++;
+    if (v('email').includes('@')) filled++;
+    if (v('company').trim()) filled++;
+    if (v('role')) filled++;
+    if (getCheckboxValues('trailerTypes').length > 0) filled++;
+    const nd = parseInt(v('numDrivers')); if (nd >= 10 && nd <= 1000) filled++;
+    const nt = parseInt(v('numTrucks')); if (nt >= 10 && nt <= 1000) filled++;
+    if (v('tms')) filled++;
+    if (v('turnover')) filled++;
+    if (v('emptyMiles')) filled++;
+    const oorK = v('oorKnown');
+    if (oorK) {
+      if (oorK === 'yes') {
+        const oe = parseFloat(v('oorEntry'));
+        if (oe >= 1 && oe <= 90) { filled++; filled++; } else { filled++; }
+      } else { filled++; filled++; }
+    }
+    if (getCheckboxValues('painPoints').length > 0) filled++;
+
+    const pct = Math.round((filled / total) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = `${filled} of ${total} fields completed`;
+  }
+
+  // Attach listeners
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('input, select').forEach(el => {
+      el.addEventListener('change', updateProgress);
+      el.addEventListener('input', updateProgress);
+    });
+    document.querySelectorAll('.check-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const cb = item.querySelector('input[type="checkbox"]');
+        cb.checked = !cb.checked;
+        item.classList.toggle('checked', cb.checked);
+        updateProgress();
+      });
+    });
+    // Prevent double-toggle from label default behavior
+    document.querySelectorAll('.check-item input').forEach(cb => {
+      cb.addEventListener('click', e => e.preventDefault());
+    });
+  });
+
+  // ── HELPERS
+  function v(id) { return (document.getElementById(id)||{}).value || ''; }
+  function el(id) { return document.getElementById(id); }
+  function showErr(id, show) {
+    const e = el('err-' + id);
+    if (e) e.classList.toggle('visible', show);
+    const f = el(id);
+    if (f && f.tagName !== 'DIV') f.classList.toggle('error', show);
+  }
+
+  function fmt(n) {
+    return '$' + Math.round(n).toLocaleString('en-US');
+  }
+
+  // ── OOR TOGGLE
+  function toggleOOR() {
+    const val = v('oorKnown');
+    const wrap = el('oorEntryWrap');
+    wrap.classList.toggle('visible', val === 'yes');
+    updateProgress();
+  }
+
+  // ── VALIDATION
+  function validate() {
+    let ok = true;
+
+    const fields = [
+      { id: 'firstName', test: () => v('firstName').trim().length > 0 },
+      { id: 'lastName',  test: () => v('lastName').trim().length > 0 },
+      { id: 'email',     test: () => v('email').includes('@') && v('email').includes('.') },
+      { id: 'company',   test: () => v('company').trim().length > 0 },
+      { id: 'role',      test: () => v('role') !== '' },
+      { id: 'tms',       test: () => v('tms') !== '' },
+      { id: 'turnover',  test: () => v('turnover') !== '' },
+      { id: 'emptyMiles',test: () => v('emptyMiles') !== '' },
+      { id: 'oorKnown',  test: () => v('oorKnown') !== '' },
+    ];
+
+    fields.forEach(f => { const p = f.test(); if (!p) ok = false; showErr(f.id, !p); });
+
+    const nd = parseInt(v('numDrivers'));
+    const ndOk = nd >= 10 && nd <= 1000;
+    if (!ndOk) ok = false; showErr('numDrivers', !ndOk);
+
+    const nt = parseInt(v('numTrucks'));
+    const ntOk = nt >= 10 && nt <= 1000;
+    if (!ntOk) ok = false; showErr('numTrucks', !ntOk);
+
+    const trailers = getCheckboxValues('trailerTypes');
+    if (trailers.length === 0) { ok = false; showErr('trailers', true); }
+    else showErr('trailers', false);
+
+    const pains = getCheckboxValues('painPoints');
+    if (pains.length === 0) { ok = false; showErr('painPoints', true); }
+    else showErr('painPoints', false);
+
+    if (v('oorKnown') === 'yes') {
+      const oe = parseFloat(v('oorEntry'));
+      const oeOk = oe >= 1 && oe <= 90;
+      if (!oeOk) ok = false; showErr('oorEntry', !oeOk);
+    }
+
+    return ok;
+  }
+
+  // ── OOR ASSUMPTION BY FLEET SIZE
+  function getOORAssumption(trucks) {
+    if (trucks <= 50) return 0.06;
+    if (trucks <= 200) return 0.08;
+    if (trucks <= 500) return 0.09;
+    return 0.09;
+  }
+
+  // ── CALCULATIONS
+  function calculate() {
+    const trucks = parseInt(v('numTrucks'));
+    const drivers = parseInt(v('numDrivers'));
+    const turnoverRate = parseFloat(v('turnover'));
+    const emptyMilesRate = parseFloat(v('emptyMiles'));
+
+    // OOR
+    let oorRate;
+    const oorChoice = v('oorKnown');
+    if (oorChoice === 'yes') {
+      oorRate = parseFloat(v('oorEntry')) / 100;
+    } else {
+      oorRate = getOORAssumption(trucks);
+    }
+
+    // Row 1: Empty Mile Cost
+    const emptyCurrentState = (110000 * trucks) * emptyMilesRate * 2.26;
+    const emptySavings = emptyCurrentState - ((110000 * trucks) * (emptyMilesRate * 0.97) * 2.26);
+
+    // Row 2: Driver Turnover
+    const turnoverCurrentState = (drivers * turnoverRate) * 8234;
+    const turnoverSavings = (drivers * (turnoverRate * 0.03)) * 8234;
+
+    // Row 3: Back Office
+    const staffCount = Math.ceil(trucks / 20);
+    const backofficeCurrentState = 54010 * staffCount;
+    const backofficeSavings = backofficeCurrentState * 0.20;
+
+    // Row 4: OOR Mileage
+    const oorCurrentState = (trucks * 110000) * oorRate;
+    const oorSavings = (trucks * 110000) * (oorRate - 0.01);
+
+    // Totals (savings only)
+    const totalSavings = emptySavings + turnoverSavings + backofficeSavings + oorSavings;
+    const year1 = totalSavings * 0.25;
+    const year3 = totalSavings;
+
+    return {
+      emptyCurrentState, emptySavings,
+      turnoverCurrentState, turnoverSavings,
+      backofficeCurrentState, backofficeSavings,
+      oorCurrentState, oorSavings,
+      year1, year3,
+      trucks, drivers, turnoverRate, emptyMilesRate, oorRate, oorChoice
+    };
+  }
+
+  // ── POPULATE PRINT INPUTS PAGE
+  function populatePrintInputs(c) {
+    const trailers = getCheckboxValues('trailerTypes').join(', ');
+    const pains = getCheckboxValues('painPoints').join(' • ');
+    const turnoverLabel = el('turnover').options[el('turnover').selectedIndex].text;
+    const emptyLabel = el('emptyMiles').options[el('emptyMiles').selectedIndex].text;
+    const oorChoice = v('oorKnown');
+    const oorDisplay = oorChoice === 'yes'
+      ? `Yes — ${v('oorEntry')}% entered`
+      : oorChoice === 'no'
+      ? `No — industry average used (${(c.oorRate*100).toFixed(0)}%)`
+      : `Uncertain — industry average used (${(c.oorRate*100).toFixed(0)}%)`;
+
+    el('pi-name').textContent = `${v('firstName')} ${v('lastName')}`;
+    el('pi-email').textContent = v('email');
+    el('pi-company').textContent = v('company');
+    el('pi-role').textContent = v('role');
+    el('pi-trailers').textContent = trailers;
+    el('pi-drivers').textContent = v('numDrivers');
+    el('pi-trucks').textContent = v('numTrucks');
+    el('pi-tms').textContent = v('tms');
+    el('pi-turnover').textContent = turnoverLabel;
+    el('pi-emptymiles').textContent = emptyLabel;
+    el('pi-oor').textContent = oorDisplay;
+    el('pi-pains').textContent = pains;
+  }
+
+  // ── SAVE AS PDF
+  function savePDF() {
+    window.print();
+  }
+
+  // ── SUBMIT
+  function submitAssessment() {
+    if (!validate()) {
+      // Scroll to first error
+      const firstErr = document.querySelector('.err-msg.visible');
+      if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    const c = calculate();
+
+    // Populate results
+    const firstName = v('firstName');
+    const lastName = v('lastName');
+    el('res-name-line').textContent = `${firstName} ${lastName} — ${v('company')}`;
+
+    el('res-empty-current').textContent = fmt(c.emptyCurrentState);
+    el('res-empty-savings').textContent = fmt(c.emptySavings);
+    el('res-turnover-current').textContent = fmt(c.turnoverCurrentState);
+    el('res-turnover-savings').textContent = fmt(c.turnoverSavings);
+    el('res-backoffice-current').textContent = fmt(c.backofficeCurrentState);
+    el('res-backoffice-savings').textContent = fmt(c.backofficeSavings);
+    el('res-oor-current').textContent = fmt(c.oorCurrentState);
+    el('res-oor-savings').textContent = fmt(c.oorSavings);
+    el('res-year1').textContent = fmt(c.year1);
+    el('res-year3').textContent = fmt(c.year3);
+
+    // Populate print inputs page
+    populatePrintInputs(c);
+
+    // Switch pages
+    el('form-page').style.display = 'none';
+    el('results-page').style.display = 'block';
+    window.scrollTo(0, 0);
+
+    // Send email
+    sendEmail(c);
+  }
+
+  // ── EMAIL
+  function sendEmail(c) {
+    const trailers = getCheckboxValues('trailerTypes').join(', ');
+    const pains = getCheckboxValues('painPoints').join(', ');
+    const oorDisplay = v('oorKnown') === 'yes' ? `${v('oorEntry')}% (entered)` : `${(c.oorRate*100).toFixed(0)}% (industry assumption)`;
+
+    const turnoverLabel = el('turnover').options[el('turnover').selectedIndex].text;
+    const emptyLabel = el('emptyMiles').options[el('emptyMiles').selectedIndex].text;
+
+    const body = `MAGNUS TECHNOLOGIES FLEET FITNESS ASSESSMENT
+Submitted: ${new Date().toLocaleString()}
+
+─── CONTACT INFORMATION ───
+Name: ${v('firstName')} ${v('lastName')}
+Email: ${v('email')}
+Company: ${v('company')}
+Role: ${v('role')}
+
+─── FLEET PROFILE ───
+Trailer Types: ${trailers}
+Number of Drivers: ${v('numDrivers')}
+Number of Trucks: ${v('numTrucks')}
+
+─── OPERATIONS & TECHNOLOGY ───
+Current TMS / System: ${v('tms')}
+Driver Turnover Rate: ${turnoverLabel}
+Empty Miles Rate: ${emptyLabel}
+OOR Miles Known: ${v('oorKnown')}
+OOR Rate Used: ${oorDisplay}
+
+─── CURRENT CHALLENGES ───
+${pains}
+
+─── ASSESSMENT RESULTS ───
+Empty Mile Cost (Current):       ${fmt(c.emptyCurrentState)}
+Empty Mile Savings with Magnus:  ${fmt(c.emptySavings)}
+
+Driver Turnover Cost (Current):      ${fmt(c.turnoverCurrentState)}
+Driver Turnover Savings with Magnus: ${fmt(c.turnoverSavings)}
+
+Back Office Cost (Current):      ${fmt(c.backofficeCurrentState)}
+Back Office Savings with Magnus: ${fmt(c.backofficeSavings)}
+
+OOR Mileage Cost (Current):      ${fmt(c.oorCurrentState)}
+OOR Mileage Savings with Magnus: ${fmt(c.oorSavings)}
+
+─── TOTALS ───
+Potential Year 1 Savings (25%):           ${fmt(c.year1)}
+Potential Annual Savings by Year 3 (100%): ${fmt(c.year3)}
+`;
+
+    const subject = `Fleet Fitness Assessment — ${v('firstName')} ${v('lastName')}, ${v('company')}`;
+    const mailtoLink = `mailto:sara.tsoodle@magnustech.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoLink;
+
+    // Show toast
+    setTimeout(() => {
+      const toast = el('toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3500);
+    }, 800);
+  }
+
+  // ── NEW ASSESSMENT
+  function startNewAssessment() {
+    // Reset all inputs
+    document.querySelectorAll('input[type="text"], input[type="email"], input[type="number"]').forEach(i => i.value = '');
+    document.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+    document.querySelectorAll('.check-item').forEach(item => {
+      const cb = item.querySelector('input[type="checkbox"]');
+      cb.checked = false;
+      item.classList.remove('checked');
+    });
+    document.querySelectorAll('.err-msg').forEach(e => e.classList.remove('visible'));
+    document.querySelectorAll('.error').forEach(e => e.classList.remove('error'));
+    el('oorEntryWrap').classList.remove('visible');
+
+    el('results-page').style.display = 'none';
+    el('form-page').style.display = 'block';
+    window.scrollTo(0, 0);
+    updateProgress();
+  }
+</script>
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('SW registered'))
+        .catch(err => console.log('SW failed:', err));
+    });
+  }
+</script>
+</body>
+</html>
