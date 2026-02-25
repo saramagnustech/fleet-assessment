@@ -730,7 +730,7 @@
         <label>How many trucks do you operate? <span class="req">*</span></label>
         <input type="number" id="numTrucks" placeholder="e.g. 45" min="10" max="25000" inputmode="numeric">
         <div class="range-hint">Enter a value of 10 or greater</div>
-        <div class="err-msg" id="err-numTrucks">Please enter a number of between 10-25000</div>
+        <div class="err-msg" id="err-numTrucks">Please enter a number between 10-25000</div>
       </div>
 
     </div>
@@ -1082,8 +1082,8 @@
     if (v('company').trim()) filled++;
     if (v('role')) filled++;
     if (getCheckboxValues('trailerTypes').length > 0) filled++;
-    const nd = parseInt(v('numDrivers')); if (nd >= 10 && nd <= 1000) filled++;
-    const nt = parseInt(v('numTrucks')); if (nt >= 10 && nt <= 1000) filled++;
+    const nd = parseInt(v('numDrivers')); if (nd >= 10 && nd <= 25000) filled++;
+    const nt = parseInt(v('numTrucks')); if (nt >= 10 && nt <= 25000) filled++;
     if (v('tms')) filled++;
     if (v('turnover')) filled++;
     if (v('emptyMiles')) filled++;
@@ -1162,11 +1162,11 @@
     fields.forEach(f => { const p = f.test(); if (!p) ok = false; showErr(f.id, !p); });
 
     const nd = parseInt(v('numDrivers'));
-    const ndOk = nd >= 10 && nd <= 1000;
+    const ndOk = nd >= 10 && nd <= 25000;
     if (!ndOk) ok = false; showErr('numDrivers', !ndOk);
 
     const nt = parseInt(v('numTrucks'));
-    const ntOk = nt >= 10 && nt <= 1000;
+    const ntOk = nt >= 10 && nt <= 25000;
     if (!ntOk) ok = false; showErr('numTrucks', !ntOk);
 
     const trailers = getCheckboxValues('trailerTypes');
@@ -1190,7 +1190,7 @@
   function getOORAssumption(trucks) {
     if (trucks <= 50) return 0.06;
     if (trucks <= 200) return 0.08;
-    if (trucks <= 500) return 0.09;
+    if (trucks <= 25000) return 0.09;
     return 0.09;
   }
 
