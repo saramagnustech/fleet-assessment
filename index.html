@@ -721,16 +721,16 @@
 
       <div class="field">
         <label>Number of Drivers <span class="req">*</span></label>
-        <input type="number" id="numDrivers" placeholder="e.g. 50" min="10" max="1000" inputmode="numeric">
-        <div class="range-hint">Enter a value between 10 and 1,000</div>
-        <div class="err-msg" id="err-numDrivers">Please enter a number between 10 and 1,000</div>
+        <input type="number" id="numDrivers" placeholder="e.g. 50" min="10" max="25000" inputmode="numeric">
+        <div class="range-hint">Enter a value of 10 or greater</div>
+        <div class="err-msg" id="err-numDrivers">Please enter a number between 10-25000</div>
       </div>
 
       <div class="field">
         <label>How many trucks do you operate? <span class="req">*</span></label>
-        <input type="number" id="numTrucks" placeholder="e.g. 45" min="10" max="1000" inputmode="numeric">
-        <div class="range-hint">Enter a value between 10 and 1,000</div>
-        <div class="err-msg" id="err-numTrucks">Please enter a number between 10 and 1,000</div>
+        <input type="number" id="numTrucks" placeholder="e.g. 45" min="10" max="25000" inputmode="numeric">
+        <div class="range-hint">Enter a value of 10 or greater</div>
+        <div class="err-msg" id="err-numTrucks">Please enter a number of between 10-25000</div>
       </div>
 
     </div>
@@ -750,6 +750,8 @@
           <select id="tms">
             <option value="">Select your current system...</option>
             <option>Alvys</option>
+            <option>Innovative</option>
+            <option>Manhattan</option>
             <option>McLeod</option>
             <option>PCS</option>
             <option>Rose Rocket</option>
@@ -787,6 +789,7 @@
         <div class="select-wrap">
           <select id="emptyMiles">
             <option value="">Select empty mile range...</option>
+            <option value="0.09">Less than 10%</option>
             <option value="0.15">10–20%</option>
             <option value="0.25">20–30%</option>
             <option value="0.35">30–40%</option>
@@ -915,7 +918,7 @@
       <div class="score-card-header">Empty Mile Cost</div>
       <div class="score-row">
         <div class="score-cell">
-          <div class="cell-label">Current State</div>
+          <div class="cell-label">Estimated Current State</div>
           <div class="cell-value" id="res-empty-current">—</div>
         </div>
         <div class="score-cell savings">
@@ -929,7 +932,7 @@
       <div class="score-card-header">Driver Turnover Cost</div>
       <div class="score-row">
         <div class="score-cell">
-          <div class="cell-label">Current State</div>
+          <div class="cell-label">Estimated Current State</div>
           <div class="cell-value" id="res-turnover-current">—</div>
         </div>
         <div class="score-cell savings">
@@ -943,7 +946,7 @@
       <div class="score-card-header">Back Office Personnel Costs</div>
       <div class="score-row">
         <div class="score-cell">
-          <div class="cell-label">Current State</div>
+          <div class="cell-label">Estimated Current State</div>
           <div class="cell-value" id="res-backoffice-current">—</div>
         </div>
         <div class="score-cell savings">
@@ -957,7 +960,7 @@
       <div class="score-card-header">Out-of-Route Mileage Costs</div>
       <div class="score-row">
         <div class="score-cell">
-          <div class="cell-label">Current State</div>
+          <div class="cell-label">Estimated Current State</div>
           <div class="cell-value" id="res-oor-current">—</div>
         </div>
         <div class="score-cell savings">
