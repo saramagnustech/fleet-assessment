@@ -1222,7 +1222,7 @@
 
     // Row 4: OOR Mileage
     const oorCurrentState = (trucks * 110000) * oorRate;
-    const oorSavings = (trucks * 110000) * (oorRate - 0.01);
+    const oorSavings = oorCurrentState - ((trucks * 110000) * (oorRate - 0.01));
 
     // Totals (savings only)
     const totalSavings = emptySavings + turnoverSavings + backofficeSavings + oorSavings;
